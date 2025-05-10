@@ -2,6 +2,7 @@ import numpy as np
 import openl3
 import soundfile as sf
 from sklearn.decomposition import PCA
+import pickle
 
 
 def audio_preprocessing(audio, defaultlen=16000 * 5):
@@ -37,3 +38,9 @@ def wav2vec(path):
         vec.append(amp + pca_output)
 
     return np.array(vec)
+
+def load_celebrity():
+    with open('./celebrity.pickle', 'rb') as fr:
+        celebrity = pickle.load(fr)
+
+    return celebrity
