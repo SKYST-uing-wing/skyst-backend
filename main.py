@@ -70,8 +70,23 @@ async def result(name: str):
 
 @app.get('/compare')
 async def compare(name: str, target: str):
+    cos_sim = calc_cos_sim(name, target)
+    return {'cos_sim': cos_sim.item()}
+
+
+def calc_cos_sim(name, target):
     vec1 = get_vec(name).flatten()
     vec2 = get_vec(target).flatten()
     cos_sim = dot(vec1, vec2)/(norm(vec1)*norm(vec2))
-    print(cos_sim)
-    return {'cos_sim': cos_sim.item()}
+    return cos_sim
+
+
+@app.get('/compareall')
+async def compareall(name: str):
+    folder_path = './vectors'
+    filenames = os.listdir(folder_path)
+    filenames_no_ext = [os.path.splitext(
+        f)[0] for f in filenames if os.path.isfile(os.path.join(folder_path, f))]
+    ret = {target: calc_cos_sim(name, target)
+           for target in filenames_no_ext if target != name}
+    return {'list_cos_sim': ret}
