@@ -55,7 +55,7 @@ def get_vec(name):
     file_path = Path(f'./vectors/{name}.npy')
     if file_path.exists():
         return np.load(file_path)
-    file_path = Path(f'./vectors/{name}.wav')
+    file_path = Path(f'./uploads/{name}.wav')
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
     convert_and_save_vec(name)
