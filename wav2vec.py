@@ -56,6 +56,6 @@ def audio_to_mel_spec(audio):
 def get_spectrogram(path):
     audio, sr = librosa.load(path)
     audio_preprocessed = audio_preprocessing(audio, sr*5)
-    mel_spec = audio_to_mel_spec(audio_preprocessed)
+    mel_spec = audio_to_mel_spec(audio_preprocessed) + 80
     
     return mel_spec.tolist()
