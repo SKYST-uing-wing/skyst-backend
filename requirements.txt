@@ -39,3 +39,6 @@ uvloop==0.21.0
 watchfiles==1.0.5
 websockets==15.0.1
 wheel==0.45.1
+numpy==1.23.4
+openl3==0.4.2
+soundfile==0.13.1
