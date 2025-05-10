@@ -1,3 +1,4 @@
+from functools import lru_cache
 import numpy as np
 import openl3
 import soundfile as sf
@@ -40,22 +41,27 @@ def wav2vec(path):
 
     return np.array(vec)
 
+
+@lru_cache
 def load_celebrity():
     with open('./celebrity.pickle', 'rb') as fr:
         celebrity = pickle.load(fr)
 
     return celebrity
 
-def audio_to_mel_spec(audio):
-  sr = 44100
-  mel_spec = librosa.feature.melspectrogram(y=audio, sr=sr, n_fft=2048, hop_length=1024)
-  mel_spec = librosa.power_to_db(mel_spec, ref=np.max)
 
-  return mel_spec
+def audio_to_mel_spec(audio):
+    sr = 44100
+    mel_spec = librosa.feature.melspectrogram(
+        y=audio, sr=sr, n_fft=2048, hop_length=1024)
+    mel_spec = librosa.power_to_db(mel_spec, ref=np.max)
+
+    return mel_spec
+
 
 def get_spectrogram(path):
     audio, sr = librosa.load(path)
     audio_preprocessed = audio_preprocessing(audio, sr*5)
     mel_spec = audio_to_mel_spec(audio_preprocessed) + 80
-    
+
     return mel_spec.tolist()

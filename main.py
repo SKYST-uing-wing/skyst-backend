@@ -1,17 +1,13 @@
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pathlib import Path
-
-from numpy import dot
+from numpy import dot, ndarray
 from numpy.linalg import norm
-import numpy as np
-
-
 import shutil
 import os
 
-from wav2vec import wav2vec
+from helper import calc_cos_sim, convert_and_save_vec, get_vec, load_celebrity_bias
+from wav2vec import get_spectrogram, load_celebrity, wav2vec
 
 app = FastAPI()
 
@@ -45,40 +41,21 @@ async def upload_mp3(name: str, file: UploadFile = File(...)):
     return {"message": "File uploaded successfully", "filename": file.filename}
 
 
-def convert_and_save_vec(name):
-    file_path = Path(f'./uploads/{name}.wav')
-    vec = wav2vec(file_path)
-    np.save(f'./vectors/{name}.npy', vec)
-
-
-def get_vec(name):
-    file_path = Path(f'./vectors/{name}.npy')
-    if file_path.exists():
-        return np.load(file_path)
-    file_path = Path(f'./uploads/{name}.wav')
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="File not found")
-    convert_and_save_vec(name)
-    return get_vec(name)
-
-
 @app.get('/result')
 async def result(name: str):
-    vec = get_vec(name)
-    return {'vectors': vec.tolist()}
+    vec1 = get_vec(name)
+    celeb: dict[str, ndarray] = load_celebrity()
+    celeb_bias: dict[str, float] = load_celebrity_bias()
+    sims = {celeb_name: dot(vec1.flatten(), vec2.flatten(
+    ))/(norm(vec1)*norm(vec2))-celeb_bias[celeb_name] for celeb_name, vec2 in celeb.items()}
+    sim_celeb = max(celeb, key=lambda x: sims[x])
+    return {'vectors': vec1.tolist(), 'similar_celeb': {'name': sim_celeb, 'cos_sim': sims[sim_celeb]}}
 
 
 @app.get('/compare')
 async def compare(name: str, target: str):
     cos_sim = calc_cos_sim(name, target)
     return {'cos_sim': cos_sim.item()}
-
-
-def calc_cos_sim(name, target):
-    vec1 = get_vec(name).flatten()
-    vec2 = get_vec(target).flatten()
-    cos_sim = dot(vec1, vec2)/(norm(vec1)*norm(vec2))
-    return cos_sim
 
 
 @app.get('/compareall')
@@ -90,3 +67,8 @@ async def compareall(name: str):
     ret = {target: calc_cos_sim(name, target)
            for target in filenames_no_ext if target != name}
     return {'list_cos_sim': ret}
+
+
+@app.get('/spectrogram')
+async def spectrogram(name: str):
+    return get_spectrogram(f'./uploads/{name}.wav')
