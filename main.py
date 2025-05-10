@@ -48,7 +48,7 @@ async def upload_mp3(name: str, file: UploadFile = File(...)):
 def convert_and_save_vec(name):
     file_path = Path(f'./uploads/{name}.wav')
     vec = wav2vec(file_path)
-    np.save('./vectors/{name}.npy', vec)
+    np.save(f'./vectors/{name}.npy', vec)
 
 
 def get_vec(name):
