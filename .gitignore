@@ -1,0 +1,7 @@
+*.db
+*.env
+.vscode/
+__pycache__/
+*.pem
+
+uploads/
