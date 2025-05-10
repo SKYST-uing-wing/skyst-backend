@@ -20,7 +20,7 @@ def wav2vec(path):
     audio_preprocessed = audio_preprocessing(audio, sr*5)
     emb, ts = openl3.get_audio_embedding(audio_preprocessed, sr=sr, embedding_size=512, hop_size=0.5)
     
-    emb_tot = np.load("C:/Users/ysg14/Desktop/skyst/emb_tot_test_512_arr.npy")
+    emb_tot = np.load("C:\Users\ysg14\Desktop\skyst-backend\emb_tot_test_512_arr.npy")
     
     vec = []
     for i in range(10):
