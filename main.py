@@ -65,15 +65,13 @@ def get_vec(name):
 @app.get('/result')
 async def result(name: str):
     vec = get_vec(name)
-    print(vec)
-    return vec.tolist()
+    return {'vectors': vec.tolist()}
 
 
 @app.get('/compare')
 async def compare(name: str, target: str):
     vec1 = get_vec(name).flatten()
     vec2 = get_vec(target).flatten()
-    print(vec1[:5], vec2[:5])
     cos_sim = dot(vec1, vec2)/(norm(vec1)*norm(vec2))
     print(cos_sim)
-    return cos_sim.item()
+    return {'cos_sim': cos_sim.item()}
